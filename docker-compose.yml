@@ -4,6 +4,8 @@ services:
     build: 
       context: ./city-api
       target: dev
+    env_file:
+      - city-api/.env.local
     restart: always
     ports:
       - "3000:3000"
