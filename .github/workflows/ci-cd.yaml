@@ -105,6 +105,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: =============== ECHO SHA =============
+        run: |
+          echo ${{ needs.build-and-push-images.steps.meta.outputs.version }}
+          echo ${{ jobs.build-and-push-images.steps.meta.outputs.version }}
+
       ## Update and commit tag image
       ##
       - name: Overwrite tag image chart
