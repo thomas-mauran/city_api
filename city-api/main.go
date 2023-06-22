@@ -59,7 +59,6 @@ func main() {
 		}
 		log.Println("Everything is good!")
 		utils.Response(w, r, 204, "Everything is good!")
-		return
 	})
 
 
@@ -89,26 +88,29 @@ func main() {
             log.Println("Error iterating rows:", err)
             utils.Response(w, r, http.StatusInternalServerError, "Internal Server Error")
             return
-        }
+    }
 
-        jsonData, err := json.Marshal(listOfCities)
-        if err != nil {
-            log.Println("Error marshaling JSON:", err)
-            utils.Response(w, r, http.StatusInternalServerError, "Internal Server Error")
-            return
-        }
+    jsonData, err := json.Marshal(listOfCities)
+    if err != nil {
+        log.Println("Error marshaling JSON:", err)
+        utils.Response(w, r, http.StatusInternalServerError, "Internal Server Error")
+        return
+    }
 
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusOK)
-        w.Write(jsonData)
-    })
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    if _, err := w.Write(jsonData); err != nil {
+        log.Println("Error writing response:", err)
+        // Handle the error. You can choose to log the error, send an appropriate response, or take any other action.
+    }
+})
+
 
     
 
     // City POST
 	r.Post("/city", func(w http.ResponseWriter, r *http.Request) {
 		utils.Response(w, r, 200, "City post")
-		return
 	})
 	errServ := http.ListenAndServe(":3000", r)
     if errServ != nil {
