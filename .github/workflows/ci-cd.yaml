@@ -108,7 +108,15 @@ jobs:
       - name: ====================== ECHO SHA ==========================
         run: |
           echo ${{ env.GITHUB_WORKFLOW_SHA }}
-          
+      
+      - name: ====================== ECHO SHA ==========================
+        run: |
+          env 
+      
+      - name: ====================== ECHO SHA ==========================
+        run: |
+          echo GITHUB_WORKFLOW_SHA 
+
 
       ## Update and commit tag image
       ##
