@@ -5,11 +5,11 @@ import (
     "log"
     "net/http"
     "os"
-
+    _ "github.com/lib/pq"
     "github.com/go-chi/chi/v5"
     "github.com/go-chi/chi/v5/middleware"
     "github.com/joho/godotenv" // Import the PostgreSQL driver package
-    "github.com/thomas-mauran/city_api/src/utils"
+    "github.com/thomas-mauran/city_api/utils"
 )
 func main() {
     // Load .env file
