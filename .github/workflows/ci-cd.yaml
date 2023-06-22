@@ -108,14 +108,14 @@ jobs:
       - name: =============== ECHO SHA =============
         run: |
           echo ${{ needs.build-and-push-images.steps.meta.outputs.version }}
-          echo ${{ jobs.build-and-push-images.steps.meta.outputs.version }}
+          echo ${{ jobs.build-and-push-images.needs.steps.meta.outputs.version }}
 
       ## Update and commit tag image
       ##
       - name: Overwrite tag image chart
         uses: mikefarah/yq@v4.27.5
         with:
-          cmd: yq -i '${{ env.TAG_PATH }} = ${{ needs.build-and-push-images.steps.meta.outputs.version }}' ${{ env.VALUES_FILE_PATH }}
+          cmd: yq -i '${{ env.TAG_PATH }} = ${{ jobs.build-and-push-images.needs.steps.meta.outputs.version }}' ${{ env.VALUES_FILE_PATH }}
 
 
 
