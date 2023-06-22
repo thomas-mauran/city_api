@@ -110,7 +110,7 @@ jobs:
       - name: Overwrite tag image chart
         uses: mikefarah/yq@v4.27.5
         with:
-          cmd: yq -i '${{ env.TAG_PATH }} = ${{ job.build-and-push-images.steps.meta.outputs.version }}' ${{ env.VALUES_FILE_PATH }}
+          cmd: yq -i '${{ env.TAG_PATH }} = ${{ jobs.build-and-push-images.steps.meta.outputs.version }}' ${{ env.VALUES_FILE_PATH }}
 
 
 
