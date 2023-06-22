@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   workflow_dispatch:
@@ -6,10 +6,14 @@ on:
     branches: 
     - 'main'
     - 'feat/sylvain-ci'
-    
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  DOCKERFILE_TARGET: ""
+  DOCKERFILE_CONTEXT: "city-api"
+  # VALUES_PATH: ""
+  # TAG_PATH: ""
 
 jobs:
   build-and-push-images:
@@ -23,12 +27,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       
+
+      ## Authenticate to Docker Hub
+      ##
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+
+      ## Build and push Docker image
+      ##
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -40,20 +53,37 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: src
-          target: prod
+          context: ${{ env.DOCKERFILE_CONTEXT }}
+          target: ${{ env.DOCKERFILE_TARGET }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Overwrite tag image from chart
-        run: |
-          git_hash=${{ env.GITHUB_WORKFLOW_SHA }}
-          version=$(cat frontend/.helm/polynotes-frontend/values.yaml | grep tag: | awk '{print $2}')
-          sed -i "s|$version|\"${git_hash}\"|" frontend/.helm/polynotes-frontend/values.yaml
 
-      - name: Commit and push changes
-        uses: devops-infra/action-commit-push@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          commit_message: Update values charts -> tag 
+  # update-tag-image-helmchart:
+  #   name: Update tag image helmchart
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #   - build-and-push-images
+  #   permissions:
+  #     contents: write
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+
+
+  #     ## Update and commit tag image
+  #     ##
+  #     - name: Overwrite tag image chart
+  #       uses: mikefarah/yq@v4.27.5
+  #       with:
+  #         cmd: yq -i '${{ env.TAG_PATH }} = ${{ env.GITHUB_WORKFLOW_SHA }}' ${{ env.VALUES_PATH }}
+
+  #     - name: Commit and Push changes
+  #       uses: EndBug/add-and-commit@v9
+  #       with:
+  #         message: 'refact(charts/portal-demo): update tag image helmchart'
+  #         add: ${{ env.VALUES_PATH }}
+  #         push: true
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
