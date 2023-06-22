@@ -104,14 +104,29 @@ func main() {
         // Handle the error. You can choose to log the error, send an appropriate response, or take any other action.
     }
 })
-
-
     
 
-    // City POST
-	r.Post("/city", func(w http.ResponseWriter, r *http.Request) {
-		utils.Response(w, r, 200, "City post")
-	})
+  // City POST
+    r.Post("/city", func(w http.ResponseWriter, r *http.Request) {
+        var cityObj City
+        err := json.NewDecoder(r.Body).Decode(&cityObj)
+        if err != nil {
+            log.Println("Error decoding JSON:", err)
+            utils.Response(w, r, http.StatusInternalServerError, "Internal Server Error")
+            return
+        }
+
+        sqlStatement := `INSERT INTO city (department_code, insee_code, zip_code, name, lat, lon) VALUES ($1, $2, $3, $4, $5, $6)`
+        _, errQuery := db.Exec(sqlStatement, cityObj.DepartmentCode, cityObj.InseeCode, cityObj.ZipCode, cityObj.Name, cityObj.Lat, cityObj.Lon)
+        if errQuery != nil {
+            log.Println("Error executing SQL query:", errQuery)
+            utils.Response(w, r, http.StatusInternalServerError, "Internal Server Error")
+            return
+        }
+
+        utils.Response(w, r, http.StatusCreated, "Posted!")
+    })
+
 	errServ := http.ListenAndServe(":3000", r)
     if errServ != nil {
         log.Fatal(errServ)
