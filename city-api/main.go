@@ -5,24 +5,24 @@ import (
     "log"
     "net/http"
     "os"
-    _ "github.com/lib/pq"
+
     "github.com/go-chi/chi/v5"
     "github.com/go-chi/chi/v5/middleware"
-    "github.com/joho/godotenv" // Import the PostgreSQL driver package
+    // "github.com/joho/godotenv" // Import the PostgreSQL driver package
     "github.com/thomas-mauran/city_api/utils"
 )
 func main() {
-    // Load .env file
-    err := godotenv.Load()
-    if err != nil {
-        log.Fatal("Error loading .env file")
-    }
+
 
     cityApiAddr := os.Getenv("CITY_API_ADDR")
     cityApiPort := os.Getenv("CITY_API_PORT")
     cityApiDBUrl := os.Getenv("CITY_API_DB_URL")
     cityApiDbUser := os.Getenv("CITY_API_DB_USER")
     cityApiDbPwd := os.Getenv("CITY_API_DB_PWD")
+
+    print("=====================================")
+    print(cityApiAddr)
+
     if cityApiDBUrl == "" || cityApiDbUser == "" || cityApiDbPwd == "" {
         log.Fatal("Missing some environment variables")
     }
