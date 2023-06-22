@@ -9,8 +9,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  DOCKERFILE_TARGET: ""
+  # IMAGE_NAME: ${{ github.repository }}
+  DOCKERFILE_TARGET: "prod"
   DOCKERFILE_CONTEXT: "city-api"
   # VALUES_PATH: ""
   # TAG_PATH: ""
@@ -47,7 +47,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
           tags: type=sha,value=${{ env.GITHUB_WORKFLOW_SHA }}
 
       - name: Build and push Docker image
