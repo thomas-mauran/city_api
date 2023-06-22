@@ -105,17 +105,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: ====================== ECHO SHA ==========================
-        run: |
-          echo ${{ env.GITHUB_WORKFLOW_SHA }}
-      
-      - name: ====================== ECHO SHA ==========================
-        run: |
-          env 
-      
-      - name: ====================== ECHO SHA ==========================
-        run: |
-          echo GITHUB_WORKFLOW_SHA 
+      - name: Extract metadata tag
+        uses: docker/metadata-action@v4
+        with:
+          tags: type=sha
 
 
       ## Update and commit tag image
@@ -123,7 +116,7 @@ jobs:
       - name: Overwrite tag image chart
         uses: mikefarah/yq@v4.27.5
         with:
-          cmd: yq -i '${{ env.TAG_PATH }} = ${{ env.GITHUB_WORKFLOW_SHA }}' ${{ env.VALUES_FILE_PATH }}
+          cmd: yq -i '${{ env.TAG_PATH }} = strenv(DOCKER_METADATA_OUTPUT_VERSION)' ${{ env.VALUES_FILE_PATH }}
 
 
 
