@@ -159,6 +159,6 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           message: 'refact(charts/portal-demo): update tag image helmchart'
-          add: ${{ env.VALUES_PATH }}
+          add: ${{ env.VALUES_FILE_PATH }}
           push: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
