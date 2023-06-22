@@ -42,9 +42,9 @@ spec:
             containerPort: {{ .Values.city.containerPort }}
             protocol: "TCP"
 
-        securityContext:
+        # securityContext:
           # The default Cloud SQL proxy image runs as the
           # "nonroot" user and group (uid: 65532) by default.
-          runAsNonRoot: true
+          # runAsNonRoot: true
         resources: {{ toYaml .Values.city.resources | nindent 10 }}
 ...
