@@ -32,6 +32,10 @@ CMD ["go", "run", "main.go"]
 ##
 FROM alpine:latest AS prod
 
+RUN addgroup -S myuser && adduser -S myuser -G myuser
+
+USER myuser
+
 WORKDIR /
 
 COPY --from=builder /app/city .
