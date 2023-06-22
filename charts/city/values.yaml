@@ -1,0 +1,83 @@
+global:
+  ## @param global.namespace Namespace in which portal is running
+  ##
+  namespace: "city"
+
+city:
+  ## @param portal.image.registry portal image registry
+  ## @param portal.image.repository portal image repository
+  ## @param portal.image.tag portal image tag (immutable tags are recommended)
+  ## @param portal.image.pullPolicy portal image pull policy
+  ##
+  image:
+    registry: ghcr.io
+    repository: thomas-mauran/city_api
+    tag: sha-06ad353
+    pullPolicy: IfNotPresent
+
+  ## @param portal.replicaCount Number of portal replicas to deploy
+  ##
+  replicaCount: 1
+
+  ## @param portal.containerPort portal custom container port
+  ##
+  containerPort: 3000
+
+  ## @param portal.resources.limits The resources limits for containers
+  ## @param portal.resources.requests The requested resources for containers
+  ##
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  ## Autoscaling configuration
+  ## @param portal.autoscaling.enabled Enable autoscaling for pods
+  ## @param portal.autoscaling.minReplicas Minimum number of portal replicas
+  ## @param portal.autoscaling.maxReplicas Maximum number of portal replicas
+  ## @param portal.autoscaling.targetCPU Target CPU utilization percentage
+  ## @param portal.autoscaling.targetMemory Target Memory utilization percentage
+  ##
+  autoscaling:
+    enabled: false
+    minReplicas: "1"
+    maxReplicas: "5"
+    averageUtilization: "50"
+
+  # Environment variables
+  env:
+    CITY_API_ADDR: 127.0.0.1
+    CITY_API_PORT: 2022
+    CITY_API_DB_URL: postgres://postgres:postgres@localhost:5432/city_api?sslmode=disable
+    CITY_API_DB_USER: postgres
+    CITY_API_DB_PWD: 1234
+
+## portal ingress parameters
+##
+ingress:
+  ## @param ingress.enabled Enable ingress record generation for portal
+  ##
+  enabled: true
+
+  ## @param ingress.hostname Default host for the ingress record
+  ##
+  hostname: "city.cluster-2022-9.dopolytech.fr"
+
+  ## @param ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+  ##
+  ingressClassName: "nginx"
+
+  ## @param ingress.annotations Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+  ## Use this parameter to set the required annotations for cert-manager, see
+  ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+  ## e.g:
+  ## annotations:
+  ##   kubernetes.io/ingress.class: nginx
+  ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+  ##
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # acme.cert-manager.io/http01-edit-in-place: "true"

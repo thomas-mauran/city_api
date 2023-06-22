@@ -1,0 +1,23 @@
+{{- if .Values.city.autoscaling.enabled -}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: city
+  namespace: {{ .Values.global.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: city
+  minReplicas: {{ .Values.city.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.city.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.city.autoscaling.averageUtilization }}
+...
+{{- end -}}

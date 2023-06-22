@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: city
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{ template "city.label" . }}
+spec:
+  replicas: {{ .Values.city.replicaCount }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: "RollingUpdate"
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      {{ template "city.label" . }}
+  template:
+    metadata:
+      labels:
+        {{ template "city.label" . }}
+    spec:
+      containers:
+      - name: city
+        image: "{{ .Values.city.image.registry }}/{{ .Values.city.image.repository }}:{{ .Values.city.image.tag }}"
+        imagePullPolicy: {{ .Values.city.image.pullPolicy }}
+        env:
+        {{- range $key, $value := .Values.city.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        - name: DB_SOURCE
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: connectionstring
+        resources: {{ toYaml .Values.city.resources | nindent 10 }}
+        ports:
+          - name: custom
+            containerPort: {{ .Values.city.containerPort }}
+            protocol: "TCP"
+
+        securityContext:
+          # The default Cloud SQL proxy image runs as the
+          # "nonroot" user and group (uid: 65532) by default.
+          runAsNonRoot: true
+        resources: {{ toYaml .Values.city.resources | nindent 10 }}
+...

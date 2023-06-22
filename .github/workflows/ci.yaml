@@ -9,7 +9,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # IMAGE_NAME: ${{ github.repository }}
   DOCKERFILE_TARGET: "prod"
   DOCKERFILE_CONTEXT: "city-api"
   # VALUES_PATH: ""

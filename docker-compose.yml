@@ -3,7 +3,7 @@ services:
   api:
     build: 
       context: ./city-api
-      target: prod
+      target: dev
     env_file:
       - city-api/.env.local
     restart: always
