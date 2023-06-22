@@ -103,6 +103,8 @@ jobs:
     - build-and-push-images
 
     steps:
+      - uses: actions/checkout@v3
+
       ## Update and commit tag image
       ##
       - name: Overwrite tag image chart
