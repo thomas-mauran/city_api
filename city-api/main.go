@@ -11,18 +11,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/lib/pq"
+	city "github.com/thomas-mauran/city_api/struct"
 	"github.com/thomas-mauran/city_api/utils"
 )
 
-type City struct {
-    ID             int     `json:"id"`
-    DepartmentCode string  `json:"department_code"`
-    InseeCode      string  `json:"insee_code"`
-    ZipCode        string  `json:"zip_code"`
-    Name           string  `json:"name"`
-    Lat            float64 `json:"lat"`
-    Lon            float64 `json:"lon"`
-}
 
 func main() {
 	cityApiAddr := os.Getenv("CITY_API_ADDR")
@@ -73,10 +65,10 @@ func main() {
         }
         defer rows.Close()
 
-        var listOfCities []City
+        var listOfCities []city.City
 
         for rows.Next() {
-            var city City
+            var city city.City
             if err := rows.Scan(&city.ID, &city.DepartmentCode, &city.InseeCode, &city.ZipCode, &city.Name, &city.Lat, &city.Lon); err != nil {
                 log.Println("Error scanning row:", err)
                 utils.Response(w, r, http.StatusInternalServerError, "Internal Server Error")
@@ -108,7 +100,7 @@ func main() {
 
   // City POST
     r.Post("/city", func(w http.ResponseWriter, r *http.Request) {
-        var cityObj City
+        var cityObj city.City
         err := json.NewDecoder(r.Body).Decode(&cityObj)
         if err != nil {
             log.Println("Error decoding JSON:", err)
