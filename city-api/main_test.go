@@ -99,5 +99,11 @@ func createCityHandler(w http.ResponseWriter, r *http.Request) {
 	// Mock the database insert operation
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Posted!"))
+
+	if _, err := w.Write([]byte("Posted!")) ; err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	
 }
