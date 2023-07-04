@@ -3,7 +3,7 @@ name: CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: 
+    branches:
     - 'main'
 
 env:
@@ -18,22 +18,27 @@ jobs:
     name: City linter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
 
-      ## Golang linter
-      ##
-      - uses: actions/setup-go@v4
-        with:
-          go-version: '1.20'
-          cache: false
+    ## Golang linter
+    ##
+    - uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+        cache: false
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.53
-          working-directory: city-api
-          
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: v1.53
+        working-directory: city-api
+
+
+    ## Golang test
+    - name: golangci-test
+      run: go test ./main_test.go
+
 
 
   build-and-push-images:
@@ -46,53 +51,53 @@ jobs:
     outputs:
       version: ${{ steps.meta.outputs.version }}
     steps:
-      - uses: actions/checkout@v3
-      
-
-      ## Dockerfile linter
-      ##
-      - name: run kics Scan
-        uses: checkmarx/kics-github-action@v1.7.0
-        with:
-          path: city-api/Dockerfile
-          fail_on: high
-          output_path: results-dir
-
-      - name: display kics results
-        run: |
-          cat results-dir/results.json
+    - uses: actions/checkout@v3
 
 
-      ## Authenticate to registry repo github
-      ##
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    ## Dockerfile linter
+    ##
+    - name: run kics Scan
+      uses: checkmarx/kics-github-action@v1.7.0
+      with:
+        path: city-api/Dockerfile
+        fail_on: high
+        output_path: results-dir
+
+    - name: display kics results
+      run: |
+        cat results-dir/results.json
 
 
-      ## Build and push Docker image
-      ##
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+    ## Authenticate to registry repo github
+    ##
+    - name: Log in to the Container registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}
-          tags: type=sha
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: ${{ env.DOCKERFILE_CONTEXT }}
-          target: ${{ env.DOCKERFILE_TARGET }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+    ## Build and push Docker image
+    ##
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.REGISTRY }}/${{ github.repository }}
+        tags: type=sha
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: ${{ env.DOCKERFILE_CONTEXT }}
+        target: ${{ env.DOCKERFILE_TARGET }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
 
 
 
@@ -103,31 +108,31 @@ jobs:
     - build-and-push-images
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
 
-      ## Update tag image
-      ##
-      - env: 
-          TAG_VERSION: ${{ needs.build-and-push-images.outputs.version }}
-        name: Overwrite tag image chart
-        uses: mikefarah/yq@v4.27.5
-        with:
-          cmd: yq -i '${{ env.YQ_TAG_PATH }} = strenv(TAG_VERSION)' ${{ env.VALUES_FILE_PATH }}
+    ## Update tag image
+    ##
+    - env:
+        TAG_VERSION: ${{ needs.build-and-push-images.outputs.version }}
+      name: Overwrite tag image chart
+      uses: mikefarah/yq@v4.27.5
+      with:
+        cmd: yq -i '${{ env.YQ_TAG_PATH }} = strenv(TAG_VERSION)' ${{ env.VALUES_FILE_PATH }}
 
 
-      ## Test deploy with kind
-      ##
-      - name: Create k8s Kind Cluster
-        uses: helm/kind-action@v1.4.0
+    ## Test deploy with kind
+    ##
+    - name: Create k8s Kind Cluster
+      uses: helm/kind-action@v1.4.0
 
-      - name: Deploy Helm chart
-        run: |
-          helm upgrade --install city charts/city -n city --create-namespace
+    - name: Deploy Helm chart
+      run: |
+        helm upgrade --install city charts/city -n city --create-namespace
 
-      - name: Wait for pod to be running
-        run: |
-          kubectl wait --for=condition=Ready pod -l app=city --timeout=300s -n city
+    - name: Wait for pod to be running
+      run: |
+        kubectl wait --for=condition=Ready pod -l app=city --timeout=300s -n city
 
 
 
@@ -141,25 +146,25 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
 
-      ## Update tag image
-      ##
-      - env: 
-          TAG_VERSION: ${{ needs.build-and-push-images.outputs.version }}
-        name: Overwrite tag image chart
-        uses: mikefarah/yq@v4.27.5
-        with:
-          cmd: yq -i '${{ env.YQ_TAG_PATH }} = strenv(TAG_VERSION)' ${{ env.VALUES_FILE_PATH }}
+    ## Update tag image
+    ##
+    - env:
+        TAG_VERSION: ${{ needs.build-and-push-images.outputs.version }}
+      name: Overwrite tag image chart
+      uses: mikefarah/yq@v4.27.5
+      with:
+        cmd: yq -i '${{ env.YQ_TAG_PATH }} = strenv(TAG_VERSION)' ${{ env.VALUES_FILE_PATH }}
 
 
-      ## Commit change 
-      ##
-      - name: Commit and Push changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: 'refact(charts/portal-demo): update tag image helmchart'
-          add: ${{ env.VALUES_FILE_PATH }}
-          push: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+    ## Commit change 
+    ##
+    - name: Commit and Push changes
+      uses: EndBug/add-and-commit@v9
+      with:
+        message: 'refact(charts/portal-demo): update tag image helmchart'
+        add: ${{ env.VALUES_FILE_PATH }}
+        push: true
+        github_token: ${{ secrets.GITHUB_TOKEN }}
