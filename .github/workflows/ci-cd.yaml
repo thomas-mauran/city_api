@@ -38,7 +38,8 @@ jobs:
     ## Golang test
     - name: golangci-test
       run: go test -v ./...
-
+      with:
+        working-directory: city-api
 
   build-and-push-images:
     name: Build and publish image city-api to ghcr.io
