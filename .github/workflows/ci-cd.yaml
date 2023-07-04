@@ -37,8 +37,7 @@ jobs:
 
     ## Golang test
     - name: golangci-test
-      run: go test ./main_test.go
-
+      run: go test -v ./...
 
 
   build-and-push-images:
