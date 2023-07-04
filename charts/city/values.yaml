@@ -11,7 +11,7 @@ city:
   image:
     registry: ghcr.io
     repository: thomas-mauran/city_api
-    tag: sha-d9e8d8c
+    tag: sha-5970605
     pullPolicy: IfNotPresent
   ## @param portal.replicaCount Number of portal replicas to deploy
   ##
