@@ -11,9 +11,26 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	city "github.com/thomas-mauran/city_api/struct"
 	"github.com/thomas-mauran/city_api/utils"
 )
+
+var requestCount = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "http_requests_total",
+		Help: "Total number of HTTP requests",
+	},
+	[]string{"method", "path", "status"},
+)
+
+func incrementRequestCount(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount.WithLabelValues(r.Method, r.URL.Path, http.StatusText(http.StatusOK)).Inc()
+		next.ServeHTTP(w, r)
+	})
+}
 
 func main() {
 	cityAPIAddr := os.Getenv("CITY_API_ADDR")
@@ -22,8 +39,8 @@ func main() {
 	cityAPIDbUser := os.Getenv("CITY_API_DB_USER")
 	cityAPIDbPwd := os.Getenv("CITY_API_DB_PWD")
 
-	print("cityAPIAddr:", cityAPIAddr)
-	print("cityAPIPort:", cityAPIPort)
+	fmt.Println("cityAPIAddr:", cityAPIAddr)
+	fmt.Println("cityAPIPort:", cityAPIPort)
 
 	if cityAPIDBUrl == "" || cityAPIDbUser == "" || cityAPIDbPwd == "" {
 		log.Fatal("Missing some environment variables")
@@ -38,6 +55,14 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+
+	// Prometheus metrics
+	prometheus.MustRegister(requestCount)
+
+	r.Route("/metrics", func(r chi.Router) {
+		r.Use(incrementRequestCount)
+		r.Handle("/", promhttp.Handler())
+	})
 
 	// Health check
 	r.Get("/_health", func(w http.ResponseWriter, r *http.Request) {
