@@ -44,6 +44,9 @@ func main() {
 
 	if cityAPIDBUrl == "" || cityAPIDbUser == "" || cityAPIDbPwd == "" {
 		log.Fatal("Missing some environment variables")
+		log.Fatal("CITY_API_DB_URL:", cityAPIDBUrl)
+		log.Fatal("CITY_API_DB_USER:", cityAPIDbUser)
+		log.Fatal("CITY_API_DB_PWD:", cityAPIDbPwd)
 	}
 
 	// Connect to the database
@@ -58,6 +61,8 @@ func main() {
 
 	// Prometheus metrics
 	prometheus.MustRegister(requestCount)
+	
+	println("Starting the server on", cityAPIAddr+":"+cityAPIPort)
 
 	r.Route("/metrics", func(r chi.Router) {
 		r.Use(incrementRequestCount)
@@ -141,7 +146,7 @@ func main() {
 		utils.Response(w, r, http.StatusCreated, "Posted!")
 	})
 
-	errServ := http.ListenAndServe(":3000", r)
+	errServ := http.ListenAndServe(cityAPIAddr + ":" + cityAPIPort, r)
 	if errServ != nil {
 		log.Fatal(errServ)
 	}
