@@ -9,6 +9,8 @@ City api is a simple go api that returns a list of cities and their respective i
 
 ### How to run
 
+#### _On Docker Compose_
+
 ```bash
 # Clone this repository
 git clone git@github.com:thomas-mauran/city_api.git
@@ -22,7 +24,12 @@ cp .env.local .env
 # Run the app
 cd ..
 docker compose up -d
+```
 
+#### _On Kubernetes_
+
+```bash
+helm install city ./charts/city -n city --create-namespace
 ```
 
 ### The endpoints
