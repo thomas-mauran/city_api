@@ -146,6 +146,7 @@ func main() {
 		utils.Response(w, r, http.StatusCreated, "Posted!")
 	})
 
+	println("Starting the server on", cityAPIAddr+":"+cityAPIPort)
 	errServ := http.ListenAndServe(cityAPIAddr + ":" + cityAPIPort, r)
 	if errServ != nil {
 		log.Fatal(errServ)
