@@ -43,8 +43,8 @@ docker compose up -d
 
 You can access the grafana dashboard here : http://localhost:3000
 
-Username: admin
-Password: admin
+**Username**: admin
+**Password**: admin
 
 You will have to set a new password. You can now to see the metrics of the app in the dashboard/node-exporter section
 
